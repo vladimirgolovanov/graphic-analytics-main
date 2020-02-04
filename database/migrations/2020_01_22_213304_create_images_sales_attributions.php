@@ -36,9 +36,9 @@ class CreateImagesSalesAttributions extends Migration
         Schema::create('attributions', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('image_id')->unsigned();
-            $table->text('caption');
-            $table->text('keywords');
-            $table->tinyInteger('keywords_count');
+            $table->text('caption')->nullable();
+            $table->text('keywords')->nullable();
+            $table->tinyInteger('keywords_count')->default(0);
             $table->timestamps();
 
             $table->foreign('image_id')->references('id')->on('images');
