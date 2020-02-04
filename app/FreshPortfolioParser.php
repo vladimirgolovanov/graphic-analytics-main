@@ -32,7 +32,7 @@ class FreshPortfolioParser
             echo 'not cache';
             echo PHP_EOL;
             $this->dom = new Dom;
-            $this->dom->loadFromUrl('https://www.shutterstock.com/g/29Graphic?sort=newest');
+            $this->dom->loadFromUrl('https://www.shutterstock.com/g/29Graphic?sort=newest&page=' . $pageNumber);
             $this->cache->set('portfolio-' . $pageNumber, $this->dom);
         }
 
@@ -95,7 +95,6 @@ class FreshPortfolioParser
                 $attribution->caption = $imageData['img_title'];
                 $image->attributions()->save($attribution);
 
-                //add queue job to parse image
                 ParseImage::dispatch($image)->delay(now()->addSeconds(30));
             });
         }
@@ -119,7 +118,7 @@ class FreshPortfolioParser
         }
 
         for ($i = 2; $i <= ($pagesToParse+1); $i++) {
-            ParsePage::dispatch($i)->delay(now()->addSeconds(30));
+            ParsePage::dispatch($i);
         }
     }
 
