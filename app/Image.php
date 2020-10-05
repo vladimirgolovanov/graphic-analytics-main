@@ -15,9 +15,15 @@ use PHPHtmlParser\Dom;
  * @property string $image_url
  * @property int $added_on
  * @mixin Eloquent
+ *
+ * @todo: extract parser from model
  */
 class Image extends Model
 {
+    const KEYWORDS = 'div[data-automation="ExpandableKeywordsList_container_div] a'; // div.C_a_03061 data-automation="ExpandableKeywordsList_container_div"
+    const CAPTION = 'h1[data-automation="ImageDetailsPage_Details"]'; //'h1.m_b_b';
+    const IMAGE_URL = 'img[data-automation="PictureFrame_highRes_img"]'; // 'img.m_i_g';
+
     protected $table = 'images';
 
     public $timestamps = true;
@@ -38,6 +44,7 @@ class Image extends Model
 
     public function parseData(): void
     {
+        // todo: use framework cache
         $this->cache = new \Memcached;
         $this->cache->addServer('127.0.0.1', 11211);
 
@@ -47,27 +54,20 @@ class Image extends Model
             echo 'not cache' . PHP_EOL;
             echo $this->page_url . PHP_EOL;
             $this->dom = new Dom;
+            // todo: move url to config()
             $this->dom->loadFromUrl('https://www.shutterstock.com' . $this->page_url);
             $this->cache->set('images-' . $this->shutter_id, $this->dom);
         }
 
-        $keywords = $this->dom->find('div.C_a_c a');
+        $keywordsList = $this->getKeywords($this->dom);
 
-        $keywordsList = [];
-        foreach ($keywords as $keywordTag) {
-            $keyword = $keywordTag->text;
-            $keywordsList[] = $keyword;
-        }
-
-        $caption = $this->dom->find('h1.m_b_b');
-        $caption = $caption->text;
+        $caption = $this->getCaption($this->dom);
 
         $attribution = $this->getAttributionForParse();
         $oldKeywordsList = $attribution->getKeywordsList();
 
         if (empty($this->image_url)) {
-            $imageUrl = $this->dom->find('img.m_i_g');
-            $imageUrl = $imageUrl->src;
+            $imageUrl = $this->getImageUrl($this->dom);
             $this->image_url = $imageUrl;
             $this->save();
         }
@@ -134,5 +134,29 @@ class Image extends Model
         }
 
         return $attribution;
+    }
+
+    public function getKeywords($dom)
+    {
+        $keywords = $dom->find(self::KEYWORDS);
+        $keywordsList = [];
+        foreach ($keywords as $keywordTag) {
+            $keyword = $keywordTag->text;
+            $keywordsList[] = $keyword;
+        }
+
+        return $keywordsList;
+    }
+
+    public function getCaption($dom)
+    {
+        $caption = $dom->find(self::CAPTION);
+        return $caption->text;
+    }
+
+    public function getImageUrl($dom)
+    {
+        $imageUrl = $dom->find(self::IMAGE_URL);
+        return $imageUrl->src;
     }
 }

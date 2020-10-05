@@ -13,6 +13,9 @@ use DB;
 
 class FreshPortfolioParser
 {
+    // Одна из 100 картинок
+    const CLASS_IMAGE_IN_PORTFOLIO = 'a.z_h_81637';
+
     protected $dom;
     protected $cache;
     protected $numberOfPages;
@@ -26,7 +29,7 @@ class FreshPortfolioParser
         $this->cache->addServer('127.0.0.1', 11211);
 
         if ($this->cache->get('portfolio-' . $pageNumber) !== false) {
-            $this->dom = $this->cache->get('portfolio-1');
+            $this->dom = $this->cache->get('portfolio-' . $pageNumber);
         } else {
             echo PHP_EOL;
             echo 'not cache';
@@ -36,8 +39,9 @@ class FreshPortfolioParser
             $this->cache->set('portfolio-' . $pageNumber, $this->dom);
         }
 
-        // b_ay_g
-        $number = $this->dom->find('div.b_ay_g');
+        /** @todo */
+        // b_ay_g // z_g_d65b1
+        $number = $this->dom->find('div.z_g_d65b1'); // data-automation="mosaic-grid"
         $number = (int)substr($number->text, 3);
         $this->numberOfPages = $number;
     }
@@ -51,7 +55,7 @@ class FreshPortfolioParser
     {
         $images = [];
 
-        $imgs = $this->dom->find('a.z_g_e');
+        $imgs = $this->dom->find(self::CLASS_IMAGE_IN_PORTFOLIO);
         foreach ($imgs as $img) {
             // parse $img to strings
             $imgPageUrl = $img->getAttribute('href');

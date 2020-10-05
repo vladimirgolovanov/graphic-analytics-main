@@ -1,0 +1,30 @@
+version: "3.1"
+services:
+    mysql:
+      image: mysql:8.0
+      container_name: sha-mysql
+      working_dir: /application
+      volumes:
+        - "./phpdocker/db/data:/var/lib/mysql"
+        - "./phpdocker/db/log:/var/log/mysql"
+        - "./phpdocker/db/conf:/etc/mysql/conf.d"
+      environment:
+        - MYSQL_ROOT_PASSWORD=sha
+        - MYSQL_DATABASE=sha
+        - MYSQL_USER=sha
+        - MYSQL_PASSWORD=sha
+      ports:
+        - "3306:3306"
+      networks:
+        - sh_network
+
+    memcached:
+      image: memcached:alpine
+      container_name: sh-memcached
+      ports:
+        - "11211:11211"
+      networks:
+        - sh_network
+
+networks:
+  sh_network:

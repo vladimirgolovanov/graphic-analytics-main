@@ -27,8 +27,8 @@ class FreshPortfolioParserTest extends TestCase
         $lastImageId = $images[count($images) - 1]['img_id'];
 
         echo PHP_EOL;
-        echo $firstImageId . PHP_EOL;
-        echo $lastImageId . PHP_EOL;
+        echo 'firstImageId: ' . $firstImageId . PHP_EOL;
+        echo 'lastImageId: ' . $lastImageId . PHP_EOL;
         echo PHP_EOL;
 
         $this->assertTrue($firstImageId > $lastImageId);
