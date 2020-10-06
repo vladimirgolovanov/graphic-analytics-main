@@ -15,3 +15,5 @@ Route::get('/', function () {
 	return 'test';
     //return view('welcome');
 });
+
+Route::post('/append', 'SalesStatController@getDay')->middleware('append');
